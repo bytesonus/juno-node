@@ -5,6 +5,13 @@ export const constants = {
         registerHook: 'registerHook',
         triggerHook: 'triggerHook',
         declareFunction: 'declareFunction',
+    },
+    responseType: {
+        moduleRegistered: 'moduleRegistered',
+        functionResponse: 'functionResponse',
+        hookRegistered: 'hookRegistered',
+        hookTriggered: 'hookTriggered',
+        functionDeclared: 'functionDeclared'
     }
 };
 
