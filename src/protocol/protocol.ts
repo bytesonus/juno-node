@@ -2,7 +2,7 @@ import { constants } from "../constants";
 import { ConnectOpts } from 'net';
 import { ConnectionOptions } from 'tls';
 
-interface Dependency {
+export interface Dependency {
     [type: string]: string;
 }
 
@@ -87,9 +87,17 @@ export class Protocol {
 
     private connection: GothamConnection;
 
-    private async sendRequest(obj: any, cb: Function) {
+    async sendRequest(obj: any) {
         await this.connection.send(obj);
-        this.requests[obj.requestId] = cb;
+        return new Promise((resolve, reject) => {
+            this.requests[obj.requestId] = (res) => {
+                if (res) {
+                    resolve(res);
+                } else {
+                    reject(res);
+                }
+            }
+        });
     }
 
     private generateRequestId() {
