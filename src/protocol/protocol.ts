@@ -145,11 +145,11 @@ export class Protocol {
         }
     }
 
-    callFunction(moduleId: string, functionName: string, ...args: FnArgs[]): FunctionCallRequest {
+    callFunction(functionName: string, args: FnArgs): FunctionCallRequest {
         return {
             requestId: this.generateRequestId(),
             type: 'functionCall',
-            function: `${moduleId}.${functionName}`,
+            function: `${this.moduleId}.${functionName}`,
             arguments: args
         }
     }
@@ -164,7 +164,7 @@ export class Protocol {
 
     functionCall(functionName: string, args: FnArgs) {
         if (this.functions[functionName]) {
-            this.functions[functionName](...args);
+            this.functions[functionName](args);
         }
     }
 
@@ -197,11 +197,11 @@ export class Protocol {
             if (res instanceof Promise) {
                 res = await res;
             }
-            await this.sendRequest({
+            this.sendRequest({
                 requestId: obj.requestId,
                 type: 'functionResponse',
                 data: res
-            }, ()=>{});
+            });
         }
     }
 

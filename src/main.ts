@@ -20,7 +20,7 @@ export class Gotham {
 
     async functionCall(fnNmame: string, args: FnArgs) {
         return await this.protocol.sendRequest(
-            this.protocol.functionCall(fnNmame, args)
+            this.protocol.callFunction(fnNmame, args)
         );
     }
 
