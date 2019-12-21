@@ -6,7 +6,7 @@ export interface Dependency {
     [type: string]: string;
 }
 
-interface FnArgs {
+export interface FnArgs {
     [type: string]: any;
 }
 
@@ -115,7 +115,7 @@ export class Protocol {
         }
     }
 
-    registerHook(moduleId: string, hook: string, cb: Function): RegisterHookRequest {
+    registerHook(hook: string, cb: Function): RegisterHookRequest {
         if (this.hookListeners[hook]) {
             this.hookListeners[hook] = [cb];
         } else {
@@ -124,7 +124,7 @@ export class Protocol {
         return {
             requestId: this.generateRequestId(),
             type: 'registerHook',
-            hook: `${moduleId}-${hook}`,
+            hook: `${this.moduleId}-${hook}`,
         }
     }
     
@@ -162,9 +162,9 @@ export class Protocol {
         }
     }
 
-    functionCall(functionName: string, ...args: FnArgs[]) {
+    functionCall(functionName: string, args: FnArgs) {
         if (this.functions[functionName]) {
-            this.functions[functionName]();
+            this.functions[functionName](...args);
         }
     }
 
