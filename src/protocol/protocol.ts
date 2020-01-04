@@ -79,7 +79,7 @@ interface DeclareFunctionResponse extends ProtocolMessage {
 }
 
 export class Protocol {
-    private moduleId: string;
+    private moduleId!: string;
     private functions: FnMappings = {};
     private hookListeners: HookMappings = {};
     private requests: FnMappings = {};
@@ -104,7 +104,7 @@ export class Protocol {
     async sendRequest(obj: any) {
         await this.connection.send(obj);
         return new Promise((resolve, reject) => {
-            this.requests[obj.requestId] = (res) => {
+            this.requests[obj.requestId] = (res: Object) => {
                 if (res) {
                     resolve(res);
                 } else {

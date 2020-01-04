@@ -1,9 +1,7 @@
 import { Protocol, Dependency, FnArgs } from "./protocol/protocol";
 import { GothamConnection, SocketConnection } from './protocol/GothamConnection';
-import { isMainThread } from 'worker_threads';
 
 export class GothamModule {
-    moduleId: string;
     protocol: Protocol
     constructor(connection: GothamConnection) {
         this.protocol = new Protocol(connection);

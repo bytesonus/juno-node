@@ -2,18 +2,18 @@ import * as net from 'net';
 
 type dataListenerFn = (data: any) => any;
 export abstract class GothamConnection {
-    dataListener: dataListenerFn;
+    dataListener: dataListenerFn = (data) => {};
 
-    abstract async setupConnection();
-    abstract async closeConnection();
-    abstract setupDataListener(dataListener: dataListenerFn);
+    abstract async setupConnection(): Promise<any>;
+    abstract async closeConnection(): Promise<any>;
+    abstract setupDataListener(dataListener: dataListenerFn): any;
     abstract async send(message: object): Promise<void>;
 }
 
 
 
 export class SocketConnection extends GothamConnection {
-    client: net.Socket;
+    client!: net.Socket;
     sockPath: string;
     constructor(sockPath: string) {
         super();
