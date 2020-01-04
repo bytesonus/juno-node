@@ -1,13 +1,17 @@
 import { Protocol, Dependency, FnArgs } from "./protocol/protocol";
-import { GothamConnection } from './protocol/GothamConnection';
+import { GothamConnection, SocketConnection } from './protocol/GothamConnection';
+import { isMainThread } from 'worker_threads';
 
-export class Gotham {
+export class GothamModule {
     moduleId: string;
     protocol: Protocol
     constructor(connection: GothamConnection) {
         this.protocol = new Protocol(connection);
     }
+
     async initialize(moduleId: string, version: string, deps: Dependency) {
+        // Setup Connection only when initialize called?
+        await this.protocol.connect();
         return await this.protocol.sendRequest(
             this.protocol.initialize(moduleId, version, deps),
         );
@@ -35,5 +39,9 @@ export class Gotham {
         return await this.protocol.sendRequest(
             this.protocol.triggerHook(hook)
         );
+    }
+
+    async close() {
+        return await this.protocol.close();
     }
 }

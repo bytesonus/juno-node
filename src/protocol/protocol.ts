@@ -80,17 +80,25 @@ interface DeclareFunctionResponse extends ProtocolMessage {
 
 export class Protocol {
     private moduleId: string;
-    private functions: FnMappings;
-    private hookListeners: HookMappings;
-    private requests: FnMappings;
+    private functions: FnMappings = {};
+    private hookListeners: HookMappings = {};
+    private requests: FnMappings = {};
 
     private connection: GothamConnection;
 
     constructor(connection: GothamConnection) {
         this.connection = connection;
+    }
+
+    async connect() {
+        await this.connection.setupConnection();
         this.connection.setupDataListener((data) => {
             this.parseResponse(data);
         });
+    }
+
+    async close() {
+        await this.connection.closeConnection();
     }
 
     async sendRequest(obj: any) {
@@ -123,9 +131,9 @@ export class Protocol {
 
     registerHook(hook: string, cb: Function): RegisterHookRequest {
         if (this.hookListeners[hook]) {
-            this.hookListeners[hook] = [cb];
-        } else {
             this.hookListeners[hook].push(cb);
+        } else {
+            this.hookListeners[hook] = [cb];
         }
         return {
             requestId: this.generateRequestId(),
@@ -155,7 +163,7 @@ export class Protocol {
         return {
             requestId: this.generateRequestId(),
             type: 'functionCall',
-            function: `${this.moduleId}.${functionName}`,
+            function: `${functionName}`,
             arguments: args
         }
     }
@@ -212,10 +220,17 @@ export class Protocol {
     }
 
     async parseHookTriggered(obj: TriggerHookRequest) {
-        if (this.hookListeners[obj.hook]) {
-            for (const listener of this.hookListeners[obj.hook]) {
-                listener();
+        if (obj.hook) {
+            // Hook triggered by another module.
+            if (this.hookListeners[obj.hook]) {
+                for (const listener of this.hookListeners[obj.hook]) {
+                    listener();
+                }
             }
+            return true;
+        } else {
+            // This moddule triggered the hook. (TODO: Should the callback still be called?)
+            return true;
         }
     }
 }
