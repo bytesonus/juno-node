@@ -1,6 +1,5 @@
 import { constants } from "../constants";
-import { ConnectOpts } from 'net';
-import { ConnectionOptions } from 'tls';
+import { GothamConnection } from './GothamConnection';
 
 export interface Dependency {
     [type: string]: string;
@@ -86,6 +85,13 @@ export class Protocol {
     private requests: FnMappings;
 
     private connection: GothamConnection;
+
+    constructor(connection: GothamConnection) {
+        this.connection = connection;
+        this.connection.setupDataListener((data) => {
+            this.parseResponse(data);
+        });
+    }
 
     async sendRequest(obj: any) {
         await this.connection.send(obj);
@@ -184,7 +190,7 @@ export class Protocol {
             res = false;
         }
         
-        // Call the callback proviced while sending the request
+        // Call the callback provided while sending the request
         if (this.requests[obj.requestId]) {
             this.requests[obj.requestId](res);
             delete this.requests[obj.requestId];

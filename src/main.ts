@@ -1,10 +1,11 @@
 import { Protocol, Dependency, FnArgs } from "./protocol/protocol";
+import { GothamConnection } from './protocol/GothamConnection';
 
 export class Gotham {
     moduleId: string;
     protocol: Protocol
-    constructor() {
-        this.protocol = new Protocol();
+    constructor(connection: GothamConnection) {
+        this.protocol = new Protocol(connection);
     }
     async initialize(moduleId: string, version: string, deps: Dependency) {
         return await this.protocol.sendRequest(
