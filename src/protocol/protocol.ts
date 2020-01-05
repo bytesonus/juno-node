@@ -194,6 +194,8 @@ export class Protocol {
 			res = true;
 		} else if (obj.type === constants.responseType.hookTriggered) {
 			res = await this.parseHookTriggered(obj as TriggerHookRequest);
+		} else if (obj.type === constants.responseType.functionResponse) {
+			res = await this.parseFunctionResponse(obj as FunctionCallResponse);
 		} else {
 			res = false;
 		}
@@ -214,9 +216,17 @@ export class Protocol {
 			this.sendRequest({
 				requestId: obj.requestId,
 				type: 'functionResponse',
-				data: res
+				data: res || {}
 			});
+			return true;
+		} else {
+			// Function wasn't found in the module.
+			return false;
 		}
+	}
+
+	async parseFunctionResponse(obj: FunctionCallResponse) {
+		return obj.data;
 	}
 
 	async parseHookTriggered(obj: TriggerHookRequest) {

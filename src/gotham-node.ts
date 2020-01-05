@@ -1,7 +1,7 @@
 import { Protocol, Dependency, FnArgs } from "./protocol/protocol";
 import { GothamConnection, SocketConnection } from './protocol/GothamConnection';
 
-export class GothamModule {
+export default class GothamModule {
 	protocol: Protocol
 	constructor(connection: GothamConnection) {
 		this.protocol = new Protocol(connection);
