@@ -1,8 +1,9 @@
-import { Protocol, Dependency, FnArgs } from "./protocol/protocol";
-import { GothamConnection, SocketConnection } from './protocol/GothamConnection';
+import { Protocol } from "./protocol";
+import { GothamConnection, SocketConnection } from './GothamConnection';
+import { Dependency, FnArgs } from "./types/protocol";
 
 export default class GothamModule {
-	protocol: Protocol
+	private protocol: Protocol;
 	constructor(connection: GothamConnection) {
 		this.protocol = new Protocol(connection);
 	}
@@ -21,7 +22,7 @@ export default class GothamModule {
 		);
 	}
 
-	async functionCall(fnNmame: string, args: FnArgs) {
+	async functionCall(fnNmame: string, args: FnArgs = {}) {
 		return await this.protocol.sendRequest(
 			this.protocol.callFunction(fnNmame, args)
 		);

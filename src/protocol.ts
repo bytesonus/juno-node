@@ -1,84 +1,9 @@
-import { constants } from "../constants";
+import { constants } from "./constants";
 import { GothamConnection } from './GothamConnection';
-
-export interface Dependency {
-	[type: string]: string;
-}
-
-export interface FnArgs {
-	[type: string]: any;
-}
-
-interface FnMappings {
-	[type: string]: Function;
-}
-
-interface HookMappings {
-	[type: string]: Function[]
-}
-
-interface ProtocolMessage {
-	requestId: string;
-	type: string;
-}
-
-interface RegisterModuleRequest extends ProtocolMessage {
-	type: 'moduleRegistration';
-	moduleId: string;
-	version: string;
-	dependencies: Dependency;
-}
-
-interface RegisterModuleResponse extends ProtocolMessage {
-	type: 'moduleRegistered';
-}
-
-interface FunctionCallRequest extends ProtocolMessage {
-	type: 'functionCall';
-	function: string;
-	arguments: FnArgs;
-}
-
-interface FunctionCallResponse extends ProtocolMessage {
-	type: 'functionResponse';
-	data: FnArgs;
-}
-
-interface RegisterHookRequest extends ProtocolMessage {
-	type: 'registerHook';
-	hook: string;
-}
-
-interface ListenHookResponse extends ProtocolMessage {
-	type: 'hookRegistered';
-}
-
-interface TriggerHookRequest extends ProtocolMessage {
-	type: 'triggerHook';
-	hook: string;
-}
-
-interface TriggerHookResponse extends ProtocolMessage {
-	type: 'hookTriggered';
-	hook: string;
-}
-
-interface CallHookResponse extends ProtocolMessage {
-	type: 'hookTriggered';
-	hook: string;
-}
-
-interface DeclareFunctionRequest extends ProtocolMessage {
-	type: 'declareFunction';
-	function: string;
-}
-
-interface DeclareFunctionResponse extends ProtocolMessage {
-	type: 'functionDeclared';
-	function: string;
-}
+import { FnMappings, HookMappings, GothamRequest, Dependency, RegisterModuleRequest, RegisterHookRequest, TriggerHookRequest, DeclareFunctionRequest, FnArgs, FunctionCallRequest, GothamResponse, FunctionCallResponse } from "./types/protocol";
 
 export class Protocol {
+	private registered: boolean;
 	private moduleId!: string;
 	private functions: FnMappings = {};
 	private hookListeners: HookMappings = {};
@@ -88,6 +13,7 @@ export class Protocol {
 
 	constructor(connection: GothamConnection) {
 		this.connection = connection;
+		this.registered = false;
 	}
 
 	async connect() {
@@ -101,7 +27,15 @@ export class Protocol {
 		await this.connection.closeConnection();
 	}
 
-	async sendRequest(obj: any) {
+	async sendRequest(obj: GothamRequest) {
+		if (obj.type !== 'moduleRegistration' && !this.registered) {
+			throw new Error("Can't send request before module has been registered");
+		}
+
+		if (obj.type === 'moduleRegistration' && this.registered) {
+			throw new Error("Module already registered");
+		}
+
 		await this.connection.send(obj);
 		return new Promise((resolve, reject) => {
 			this.requests[obj.requestId] = (res: Object) => {
@@ -182,9 +116,10 @@ export class Protocol {
 		}
 	}
 
-	async parseResponse(obj: ProtocolMessage) {
+	async parseResponse(obj: GothamResponse) {
 		let res;
 		if (obj.type === constants.responseType.moduleRegistered) {
+			this.registered = true;
 			res = true;
 		} else if (obj.type === constants.requestType.functionCall) {
 			res = await this.parseFunctionCall(obj as FunctionCallRequest);

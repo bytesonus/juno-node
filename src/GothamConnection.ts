@@ -1,15 +1,12 @@
 import * as net from 'net';
 
 type dataListenerFn = (data: any) => any;
-export abstract class GothamConnection {
-	dataListener: dataListenerFn = (data) => { };
-	abstract async setupConnection(): Promise<any>;
-	abstract async closeConnection(): Promise<any>;
-	abstract setupDataListener(dataListener: dataListenerFn): any;
-	abstract async send(message: object): Promise<void>;
+export class GothamConnection {
+	async setupConnection(): Promise<any> {}
+	async closeConnection(): Promise<any> {}
+	setupDataListener(dataListener: dataListenerFn): any {};
+	async send(message: object): Promise<void> {};
 }
-
-
 
 export class SocketConnection extends GothamConnection {
 	client!: net.Socket;
@@ -34,13 +31,13 @@ export class SocketConnection extends GothamConnection {
 	}
 
 	setupDataListener(dataListener: dataListenerFn) {
-		this.dataListener = (data: Buffer) => {
+		const parsedDataListener = (data: Buffer) => {
 			const parsed = JSON.parse(data.toString('utf-8'));
 			// console.log("Socket Received Data:");
 			// console.log(parsed);
 			dataListener(parsed);
 		};
-		this.client.on('data', this.dataListener);
+		this.client.on('data', parsedDataListener);
 	}
 
 	async send(message: object) {

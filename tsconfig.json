@@ -7,13 +7,15 @@
     "strict": true,
     "sourceMap": true,
     "declaration": true,
-    "allowSyntheticDefaultImports": true,
+	"allowSyntheticDefaultImports": true,
+	"esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "typeRoots": [
-      "node_modules/@types"
+	  "node_modules/@types",
+	  "types"
     ]
   },
   "include": [
