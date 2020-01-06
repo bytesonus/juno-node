@@ -41,7 +41,6 @@ makeConnectionTests('Initalize Tests', function () {
 makeConnectionTests('Test if requests constructed correctly', function () {
 	it('declareFunction', async function () {
 		this.test.module.declareFunction('test_fn', () => { });
-		await sleep(0);
 		const message = this.test.sendFunc.getCall(0).args[0];
 		expect(message).excluding('requestId').to.deep.equal({
 				function: "test_fn",
@@ -52,7 +51,6 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 
 	it('functionCall with empty args', async function() {
 		this.test.module.functionCall('module.test_fn');
-		await sleep(0);
 		const message = this.test.sendFunc.getCall(0).args[0];
 		expect(message).excluding('requestId').to.deep.equal({
 				function: "module.test_fn",
@@ -66,7 +64,6 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 			a: 1,
 			b: 2
 		});
-		await sleep(0);
 		const message = this.test.sendFunc.getCall(0).args[0];
 		expect(message).excluding('requestId').to.deep.equal({
 			function: "module.test_fn",
