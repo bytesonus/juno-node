@@ -71,7 +71,7 @@ makeConnectionTests('Initalize Tests', function () {
 }, false);
 
 makeConnectionTests('Test if requests constructed correctly', function () {
-	it('declareFunction', async function () {
+	it('declareFunction', function () {
 		this.test.module.declareFunction('test_fn', () => { });
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
@@ -81,7 +81,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 	});
 
 
-	it('functionCall with empty args', async function () {
+	it('functionCall with empty args', function () {
 		this.test.module.functionCall('module.test_fn');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
@@ -91,7 +91,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		});
 	});
 
-	it('functionCall with args', async function () {
+	it('functionCall with args', function () {
 		this.test.module.functionCall('module.test_fn', {
 			a: 1,
 			b: 2
@@ -107,7 +107,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		});
 	});
 
-	it('registerHook', async function () {
+	it('registerHook', function () {
 		this.test.module.registerHook('test_hook', () => { });
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
@@ -116,7 +116,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		});
 	});
 
-	it('triggerHook', async function () {
+	it('triggerHook', function () {
 		this.test.module.triggerHook('test_hook');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
