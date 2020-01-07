@@ -24,6 +24,13 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 		beforeEach(async function () {
 			this.currentTest.conn = new DummyGothamConnection();
 			this.currentTest.sendFunc = sinon.fake();
+			this.currentTest.getLatestSent =  () => {
+				if (this.currentTest) {
+					return this.currentTest.sendFunc.getCall(0).args[0];
+				} else {
+					return this.test.sendFunc.getCall(0).args[0];
+				}
+			}
 			sinon.replace(this.currentTest.conn, 'send', this.currentTest.sendFunc);
 			this.currentTest.module = new GothamModule(
 				this.currentTest.conn

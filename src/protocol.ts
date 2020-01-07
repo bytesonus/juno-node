@@ -72,7 +72,7 @@ export class Protocol {
 		return {
 			requestId: this.generateRequestId(),
 			type: 'registerHook',
-			hook: `${this.moduleId}-${hook}`,
+			hook: `${hook}`,
 		}
 	}
 
@@ -144,7 +144,7 @@ export class Protocol {
 
 	async parseFunctionCall(obj: FunctionCallRequest) {
 		if (this.functions[obj.function]) {
-			let res = this.functions[obj.function]();
+			let res = this.functions[obj.function](obj.arguments || {});
 			if (res instanceof Promise) {
 				res = await res;
 			}

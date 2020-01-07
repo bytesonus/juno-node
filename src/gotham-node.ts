@@ -8,7 +8,7 @@ export default class GothamModule {
 		this.protocol = new Protocol(connection);
 	}
 
-	async initialize(moduleId: string, version: string, deps: Dependency) {
+	async initialize(moduleId: string, version: string, deps: Dependency = {}) {
 		// Setup Connection only when initialize called?
 		await this.protocol.connect();
 		return await this.protocol.sendRequest(
