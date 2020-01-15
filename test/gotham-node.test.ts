@@ -45,7 +45,7 @@ makeConnectionTests('Initalize Tests', function () {
 			this.test.module.declareFunction('test', () => { })
 		).to.be.rejectedWith(Error);
 		await expect(
-			this.test.module.functionCall('test', {})
+			this.test.module.callFunction('test', {})
 		).to.be.rejectedWith(Error);
 		await expect(
 			this.test.module.registerHook('test', () => { })
@@ -82,7 +82,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 
 
 	it('functionCall with empty args', function () {
-		this.test.module.functionCall('module.test_fn');
+		this.test.module.callFunction('module.test_fn');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
 			function: "module.test_fn",
@@ -92,7 +92,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 	});
 
 	it('functionCall with args', function () {
-		this.test.module.functionCall('module.test_fn', {
+		this.test.module.callFunction('module.test_fn', {
 			a: 1,
 			b: 2
 		});
@@ -188,7 +188,7 @@ makeConnectionTests('Test if responses from gotham parsed correctly', async func
 	});
 
 	it('functionResponse', async function() {
-		const p = this.test.module.functionCall('module.test_fn');
+		const p = this.test.module.callFunction('module.test_fn');
 		await sleep(0);
 		const requestId = this.test.getLatestSent().requestId;
 

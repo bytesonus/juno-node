@@ -1,27 +1,27 @@
-export type ModuleRegistration = 'moduleRegistration';
-export type FunctionCall = 'functionCall';
-export type RegisterHook = 'registerHook';
-export type TriggerHook = 'triggerHook';
-export type DeclareFunction = 'declareFunction';
+export type ModuleRegistration = 1;
+export type FunctionCall = 3;
+export type RegisterHook = 5;
+export type TriggerHook = 7;
+export type DeclareFunction = 9;
 
-export type ModuleRegistered = 'moduleRegistered';
-export type FunctionResponse = 'functionResponse';
-export type HookRegistered = 'hookRegistered';
-export type HookTriggered = 'hookTriggered';
-export type FunctionDeclared = 'functionDeclared';
+export type ModuleRegistered = 2;
+export type FunctionResponse = 4;
+export type HookRegistered = 6;
+export type HookTriggered = 8;
+export type FunctionDeclared = 10;
 
 export const RequestTypes = {
-	ModuleRegistration: 'moduleRegistration',
-	FunctionCall: 'functionCall',
-	RegisterHook: 'registerHook',
-	TriggerHook: 'triggerHook',
-	DeclareFunction: 'declareFunction'
+	ModuleRegistration: 1,
+	FunctionCall: 3,
+	RegisterHook: 5,
+	TriggerHook: 7,
+	DeclareFunction: 9
 };
 
 export const ResponseTypes = {
-	ModuleRegistered: 'moduleRegistered',
-	FunctionResponse: 'functionResponse',
-	HookRegistered: 'hookRegistered',
-	HookTriggered: 'hookTriggered',
-	FunctionDeclared: 'functionDeclared'
+	ModuleRegistered: 2,
+	FunctionResponse: 4,
+	HookRegistered: 6,
+	HookTriggered: 8,
+	FunctionDeclared: 10
 };

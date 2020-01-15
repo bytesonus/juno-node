@@ -13,10 +13,12 @@ import SocketConnection from './connection/socket-connection';
 export default class GothamModule {
 
 	private protocol: BaseProtocol;
+	private moduleId?: string;
 	private connection: BaseConnection;
 	private requests: { [type: string]: Function } = {};
 	private functions: { [type: string]: Function } = {};
 	private hookListeners: { [type: string]: Function[] } = {};
+	private messagBuffer?: Buffer;
 	private registered = false;
 
 	constructor(connection: BaseConnection, protocol: BaseProtocol) {
@@ -34,6 +36,7 @@ export default class GothamModule {
 		version: string,
 		deps: { [type: string]: string } = {}
 	) {
+		this.moduleId = moduleId;
 		// Setup Connection only when initialize called?
 		await this.connection.setupConnection();
 		this.connection.setOnDataListener((data) => {
@@ -85,17 +88,22 @@ export default class GothamModule {
 	}
 
 	private async sendRequest(request: GothamMessage) {
-		if (request.type !== RequestTypes.ModuleRegistration && !this.registered) {
-			throw new Error('Can\'t send request before module has been registered');
-		}
-
-		if (request.type === 'moduleRegistration' && this.registered) {
+		if (request.type === RequestTypes.ModuleRegistration && this.registered) {
 			throw new Error('Module already registered');
 		}
 
-		await this.connection.send(
-			this.protocol.encode(request)
-		);
+		const encoded = this.protocol.encode(request);
+		if (this.registered || request.type === RequestTypes.ModuleRegistration) {
+			await this.connection.send(
+				encoded
+			);
+		} else {
+			if (this.messagBuffer) {
+				this.messagBuffer = Buffer.concat([this.messagBuffer, encoded])
+			} else {
+				this.messagBuffer = encoded;
+			}
+		}
 
 		return new Promise((resolve, reject) => {
 			this.requests[request.requestId] = (response: any) => {
@@ -113,7 +121,6 @@ export default class GothamModule {
 		let value;
 		switch (response.type) {
 			case ResponseTypes.ModuleRegistered: {
-				this.registered = true;
 				value = true;
 				break;
 			}
@@ -159,7 +166,7 @@ export default class GothamModule {
 			}
 			this.sendRequest({
 				requestId: request.requestId,
-				type: 'functionResponse',
+				type: ResponseTypes.FunctionResponse,
 				data: res || {}
 			});
 			return true;
@@ -172,7 +179,12 @@ export default class GothamModule {
 	private async executeHookTriggered(request: TriggerHookRequest) {
 		if (request.hook) {
 			// Hook triggered by another module.
-			if (this.hookListeners[request.hook]) {
+			if (request.hook === `gotham.activated`) {
+				this.registered = true;
+				if (this.messagBuffer) {
+					this.connection.send(this.messagBuffer);
+				}
+			} else if (this.hookListeners[request.hook]) {
 				for (const listener of this.hookListeners[request.hook]) {
 					listener();
 				}

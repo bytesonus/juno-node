@@ -1,17 +1,24 @@
-import { GothamConnection } from "../src/GothamConnection";
+import BaseConnection, { OnDataHandler } from "../src/connection/base-connection";
 
-import { dataListenerFn } from "../src/types/protocol";
 
 import sinon from "sinon";
 
 import GothamModule from "../src/gotham-node";
+import { JsonProtocol } from "../src/protocol/json-protocol";
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t));
 
-export class DummyGothamConnection extends GothamConnection {
-	dataListener: dataListenerFn;
-	setupDataListener(fn: dataListenerFn) {
-		this.dataListener = fn;
+export class DummyGothamConnection extends BaseConnection {
+	dataListener: OnDataHandler;
+	async send(request: Buffer) {
+	}
+
+	async setupConnection() {
+
+	}
+
+	async closeConnection() {
+
 	}
 
 	sendResponse(message: any) {
@@ -33,7 +40,8 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 			}
 			sinon.replace(this.currentTest.conn, 'send', this.currentTest.sendFunc);
 			this.currentTest.module = new GothamModule(
-				this.currentTest.conn
+				this.currentTest.conn,
+				new JsonProtocol(),
 			);
 
 			if (initalizeModule) {

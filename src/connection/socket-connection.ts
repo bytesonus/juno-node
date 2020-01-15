@@ -14,7 +14,12 @@ export default class SocketConnection extends BaseConnection {
 		return new Promise(resolve => {
 			this.client = net.createConnection(this.sockPath);
 			this.client.on('data', (data) => {
-				this.onData(data);
+				const dataLines = data.toString().split(/\r?\n/);
+				dataLines.map((data) => {
+					if (data) {
+						this.onData(Buffer.from(data))
+					}
+				});
 			});
 			this.client.on('connect', () => {
 				resolve();

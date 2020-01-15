@@ -1,4 +1,3 @@
-import { RequestTypes } from '../utils/constants';
 import {
 	RegisterHookRequest,
 	TriggerHookRequest,
@@ -7,6 +6,7 @@ import {
 	RegisterModuleRequest,
 	GothamMessage
 } from '../models/messages';
+import { RequestTypes } from '../utils/constants';
 
 export abstract class BaseProtocol {
 	private moduleId = 'undefined';
@@ -27,7 +27,7 @@ export abstract class BaseProtocol {
 		this.moduleId = moduleId;
 		return {
 			requestId: this.generateRequestId(),
-			type: 'moduleRegistration',
+			type: RequestTypes.ModuleRegistration,
 			moduleId: moduleId,
 			version: version,
 			dependencies: deps
@@ -37,7 +37,7 @@ export abstract class BaseProtocol {
 	public registerHook(hook: string): RegisterHookRequest {
 		return {
 			requestId: this.generateRequestId(),
-			type: 'registerHook',
+			type: RequestTypes.RegisterHook,
 			hook
 		};
 	}
@@ -45,7 +45,7 @@ export abstract class BaseProtocol {
 	public triggerHook(hook: string): TriggerHookRequest {
 		return {
 			requestId: this.generateRequestId(),
-			type: 'triggerHook',
+			type: RequestTypes.TriggerHook,
 			hook
 		};
 	}
@@ -53,7 +53,7 @@ export abstract class BaseProtocol {
 	public declareFunction(functionName: string): DeclareFunctionRequest {
 		return {
 			requestId: this.generateRequestId(),
-			type: 'declareFunction',
+			type: RequestTypes.DeclareFunction,
 			function: functionName
 		};
 	}
@@ -64,7 +64,7 @@ export abstract class BaseProtocol {
 	): FunctionCallRequest {
 		return {
 			requestId: this.generateRequestId(),
-			type: 'functionCall',
+			type: RequestTypes.FunctionCall,
 			function: functionName,
 			arguments: args
 		};
