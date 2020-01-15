@@ -22,7 +22,7 @@ export default class GothamModule {
 	constructor(connection: BaseConnection, protocol: BaseProtocol) {
 		this.protocol = protocol;
 		this.connection = connection;
-		this.connection.setOnDataListener(this.onDataHandler);
+		// this.connection.setOnDataListener(this.onDataHandler);
 	}
 
 	public static default(socketPath: string): GothamModule {
@@ -36,7 +36,9 @@ export default class GothamModule {
 	) {
 		// Setup Connection only when initialize called?
 		await this.connection.setupConnection();
-		this.connection.setOnDataListener(this.onDataHandler);
+		this.connection.setOnDataListener((data) => {
+			this.onDataHandler(data);
+		});
 		return this.sendRequest(
 			this.protocol.initialize(
 				moduleId,

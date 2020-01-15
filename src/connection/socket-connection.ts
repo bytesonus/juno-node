@@ -13,7 +13,9 @@ export default class SocketConnection extends BaseConnection {
 	setupConnection(): Promise<void> {
 		return new Promise(resolve => {
 			this.client = net.createConnection(this.sockPath);
-			this.client.on('data', this.onData);
+			this.client.on('data', (data) => {
+				this.onData(data);
+			});
 			this.client.on('connect', () => {
 				resolve();
 			});
