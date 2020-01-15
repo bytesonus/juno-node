@@ -21,8 +21,10 @@ export class DummyGothamConnection extends BaseConnection {
 
 	}
 
-	sendResponse(message: any) {
-		this.dataListener(message);
+	sendResponse(message: object) {
+		this.onData(
+			Buffer.from(JSON.stringify(message))
+		);
 	}
 }
 
@@ -33,9 +35,9 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 			this.currentTest.sendFunc = sinon.fake();
 			this.currentTest.getLatestSent =  () => {
 				if (this.currentTest) {
-					return this.currentTest.sendFunc.getCall(0).args[0];
+					return JSON.parse(this.currentTest.sendFunc.getCall(0).args[0].toString());
 				} else {
-					return this.test.sendFunc.getCall(0).args[0];
+					return JSON.parse(this.test.sendFunc.getCall(0).args[0].toString());
 				}
 			}
 			sinon.replace(this.currentTest.conn, 'send', this.currentTest.sendFunc);
@@ -50,7 +52,12 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 				const requestId = this.currentTest.sendFunc.getCall(0).args[0].requestId;
 				this.currentTest.conn.sendResponse({
 					requestId,
-					type: 'moduleRegistered'
+					type: 2,
+				});
+				this.currentTest.conn.sendResponse({
+					requestId: '123',
+					hook: "gotham.activated",
+					type: 8
 				});
 				await sleep(0);
 				this.currentTest.sendFunc.resetHistory();
