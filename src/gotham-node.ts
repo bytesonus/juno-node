@@ -99,7 +99,7 @@ export default class GothamModule {
 			);
 		} else {
 			if (this.messagBuffer) {
-				this.messagBuffer = Buffer.concat([this.messagBuffer, encoded])
+				this.messagBuffer = Buffer.concat([this.messagBuffer, encoded]);
 			} else {
 				this.messagBuffer = encoded;
 			}
