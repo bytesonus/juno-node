@@ -1,21 +1,30 @@
-import { GothamConnection } from "../src/GothamConnection";
+import BaseConnection, { OnDataHandler } from "../src/connection/base-connection";
 
-import { dataListenerFn } from "../src/types/protocol";
 
 import sinon from "sinon";
 
 import GothamModule from "../src/gotham-node";
+import { JsonProtocol } from "../src/protocol/json-protocol";
 
 export const sleep = (t: number) => new Promise((r) => setTimeout(r, t));
 
-export class DummyGothamConnection extends GothamConnection {
-	dataListener: dataListenerFn;
-	setupDataListener(fn: dataListenerFn) {
-		this.dataListener = fn;
+export class DummyGothamConnection extends BaseConnection {
+	dataListener: OnDataHandler;
+	async send(request: Buffer) {
 	}
 
-	sendResponse(message: any) {
-		this.dataListener(message);
+	async setupConnection() {
+
+	}
+
+	async closeConnection() {
+
+	}
+
+	sendResponse(message: object) {
+		this.onData(
+			Buffer.from(JSON.stringify(message))
+		);
 	}
 }
 
@@ -26,14 +35,15 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 			this.currentTest.sendFunc = sinon.fake();
 			this.currentTest.getLatestSent =  () => {
 				if (this.currentTest) {
-					return this.currentTest.sendFunc.getCall(0).args[0];
+					return JSON.parse(this.currentTest.sendFunc.getCall(0).args[0].toString());
 				} else {
-					return this.test.sendFunc.getCall(0).args[0];
+					return JSON.parse(this.test.sendFunc.getCall(0).args[0].toString());
 				}
 			}
 			sinon.replace(this.currentTest.conn, 'send', this.currentTest.sendFunc);
 			this.currentTest.module = new GothamModule(
-				this.currentTest.conn
+				this.currentTest.conn,
+				new JsonProtocol(),
 			);
 
 			if (initalizeModule) {
@@ -42,7 +52,12 @@ export function makeConnectionTests(name: string, tests: Function, initalizeModu
 				const requestId = this.currentTest.sendFunc.getCall(0).args[0].requestId;
 				this.currentTest.conn.sendResponse({
 					requestId,
-					type: 'moduleRegistered'
+					type: 2,
+				});
+				this.currentTest.conn.sendResponse({
+					requestId: '123',
+					hook: "gotham.activated",
+					type: 8
 				});
 				await sleep(0);
 				this.currentTest.sendFunc.resetHistory();
