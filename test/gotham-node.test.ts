@@ -15,7 +15,7 @@ makeConnectionTests('Initalize Tests', function () {
 		await sleep(0);
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			type: 'moduleRegistration',
+			type: 1,
 			moduleId: 'test-module',
 			version: '1.0.0',
 			dependencies: {}
@@ -30,7 +30,7 @@ makeConnectionTests('Initalize Tests', function () {
 		await sleep(0);
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			type: 'moduleRegistration',
+			type: 1,
 			moduleId: 'test-module',
 			version: '1.0.0',
 			dependencies: {
@@ -40,31 +40,21 @@ makeConnectionTests('Initalize Tests', function () {
 		});
 	});
 
-	it('Does not allow to send other request without initializing', async function () {
-		await expect(
-			this.test.module.declareFunction('test', () => { })
-		).to.be.rejectedWith(Error);
-		await expect(
-			this.test.module.functionCall('test', {})
-		).to.be.rejectedWith(Error);
-		await expect(
-			this.test.module.registerHook('test', () => { })
-		).to.be.rejectedWith(Error);
-		await expect(
-			this.test.module.triggerHook('test')
-		).to.be.rejectedWith(Error);
-	});
-
 	it('Initialize resolves correctly/Cannot initalize twice', async function () {
 		const p = this.test.module.initialize('test-module1', '1.0.0', {});
 		await sleep(0);
 		const requestId = this.test.getLatestSent().requestId;
 		this.test.conn.sendResponse({
 			requestId,
-			type: 'moduleRegistered'
+			type: 2,
+		});
+		this.test.conn.sendResponse({
+			requestId: '123',
+			hook: 'gotham.activated',
+			type: 8
 		});
 		expect(p).to.eventually.equal(true);
-		return await expect(
+		return expect(
 			this.test.module.initialize('test-module2', '1.0.0', {})
 		).to.be.rejectedWith(Error);
 	});
@@ -75,31 +65,31 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		this.test.module.declareFunction('test_fn', () => { });
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			function: "test_fn",
-			type: "declareFunction"
+			function: 'test_fn',
+			type: 9
 		});
 	});
 
 
 	it('functionCall with empty args', function () {
-		this.test.module.functionCall('module.test_fn');
+		this.test.module.callFunction('module.test_fn');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			function: "module.test_fn",
-			type: "functionCall",
+			function: 'module.test_fn',
+			type: 3,
 			arguments: {}
 		});
 	});
 
 	it('functionCall with args', function () {
-		this.test.module.functionCall('module.test_fn', {
+		this.test.module.callFunction('module.test_fn', {
 			a: 1,
 			b: 2
 		});
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			function: "module.test_fn",
-			type: "functionCall",
+			function: 'module.test_fn',
+			type: 3,
 			arguments: {
 				a: 1,
 				b: 2
@@ -111,8 +101,8 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		this.test.module.registerHook('test_hook', () => { });
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			hook: "test_hook",
-			type: "registerHook",
+			hook: 'test_hook',
+			type: 5,
 		});
 	});
 
@@ -120,90 +110,93 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		this.test.module.triggerHook('test_hook');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
-			type: "triggerHook",
-			hook: 'test_hook'
+			type: 7,
+			hook: 'test_hook',
 		});
 	});
 });
 
 
-makeConnectionTests('Test if responses from gotham parsed correctly', async function () {
-	it('declareFunction', async function () {
-		const p = this.test.module.declareFunction('test_fn', () => {});
-		const requestId = this.test.getLatestSent().requestId;
-		await sleep(0);
-		this.test.conn.sendResponse({
-			requestId,
-			type: 'functionDeclared',
-			function: 'test_fn'
+makeConnectionTests(
+	'Test if responses from gotham parsed correctly',
+	async function () {
+		it('declareFunction', async function () {
+			const p = this.test.module.declareFunction('test_fn', () => { });
+			const requestId = this.test.getLatestSent().requestId;
+			await sleep(0);
+			this.test.conn.sendResponse({
+				requestId,
+				type: 10,
+				function: 'test_fn'
+			});
+			return expect(p).to.eventually.equal(true);
 		});
-		return expect(p).to.eventually.equal(true);
-	});
-	it('hookRegistered', async function () {
-		const p = this.test.module.registerHook('test_hook', () => {});
-		await sleep(0);
-		const requestId = this.test.getLatestSent().requestId;
-		this.test.conn.sendResponse({
-			requestId,
-			type: 'hookRegistered',
-		});
+		it('hookRegistered', async function () {
+			const p = this.test.module.registerHook('test_hook', () => { });
+			await sleep(0);
+			const requestId = this.test.getLatestSent().requestId;
+			this.test.conn.sendResponse({
+				requestId,
+				type: 6,
+			});
 
-		return expect(p).to.eventually.equal(true);
-	});
-
-	it('hookTriggered', async function() {
-		const fn = sinon.fake();
-		const p = this.test.module.registerHook('test_hook', fn);
-		await sleep(0);
-		this.test.conn.sendResponse({
-			requestId: '12345',
-			type: 'hookTriggered',
-			hook: 'test_hook'
-		});
-		// await sleep(0);
-		assert(fn.calledOnce);
-	});
-
-	it('functionCall', async function() {
-		const fn = sinon.fake();
-		const p = this.test.module.declareFunction('test_fn', fn);
-		await sleep(0);
-
-		this.test.conn.sendResponse({
-			requestId: '12345',
-			type: 'functionCall',
-			function: 'test_fn'
+			return expect(p).to.eventually.equal(true);
 		});
 
-		assert(fn.calledOnce);
-
-		this.test.conn.sendResponse({
-			requestId: '12345',
-			type: 'functionCall',
-			function: 'test_fn',
-			arguments: {a : 1, b: 2}
+		it('hookTriggered', async function () {
+			const fn = sinon.fake();
+			const p = this.test.module.registerHook('test_hook', fn);
+			await sleep(0);
+			this.test.conn.sendResponse({
+				requestId: '12345',
+				type: 8,
+				hook: 'test_hook'
+			});
+			// await sleep(0);
+			assert(fn.calledOnce);
 		});
 
-		expect(fn.getCall(1).args[0]).to.deep.equal({a : 1, b: 2});
-	});
+		it('functionCall', async function () {
+			const fn = sinon.fake();
+			const p = this.test.module.declareFunction('test_fn', fn);
+			await sleep(0);
 
-	it('functionResponse', async function() {
-		const p = this.test.module.functionCall('module.test_fn');
-		await sleep(0);
-		const requestId = this.test.getLatestSent().requestId;
+			this.test.conn.sendResponse({
+				requestId: '12345',
+				type: 3,
+				function: 'test_fn'
+			});
 
-		this.test.conn.sendResponse({
-			requestId,
-			type: 'functionResponse',
-			data: {
-				a:1,
+			assert(fn.calledOnce);
+
+			this.test.conn.sendResponse({
+				requestId: '12345',
+				type: 3,
+				function: 'test_fn',
+				arguments: { a: 1, b: 2 }
+			});
+
+			expect(fn.getCall(1).args[0]).to.deep.equal({ a: 1, b: 2 });
+		});
+
+		it('functionResponse', async function () {
+			const p = this.test.module.callFunction('module.test_fn');
+			await sleep(0);
+			const requestId = this.test.getLatestSent().requestId;
+
+			this.test.conn.sendResponse({
+				requestId,
+				type: 4,
+				data: {
+					a: 1,
+					b: 2
+				}
+			});
+
+			return expect(p).to.eventually.deep.equal({
+				a: 1,
 				b: 2
-			}
+			});
 		});
-
-		return expect(p).to.eventually.deep.equal({
-			a:1,
-			b:2
-		});
-	});
-});
+	}
+);

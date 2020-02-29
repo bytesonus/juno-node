@@ -1,10 +1,10 @@
-import { GothamConnection } from "../src/GothamConnection";
+import BaseConnection from "../src/connection/base-connection";
 import GothamModule from "../src/gotham-node";
 import { SinonSpy } from "sinon";
 import { DummyGothamConnection } from "./helpers";
 
 interface GothamTest {
-	connection: GothamConnection;
+	connection: BaseConnection;
 }
 
 declare module 'mocha' {
