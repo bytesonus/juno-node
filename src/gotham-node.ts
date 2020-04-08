@@ -8,7 +8,7 @@ import {
 	TriggerHookRequest,
 	GothamMessage
 } from './models/messages';
-import SocketConnection from './connection/socket-connection';
+import SocketConnection from './connection/unix-socket-connection';
 
 export default class GothamModule {
 
