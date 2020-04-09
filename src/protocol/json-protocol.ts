@@ -1,12 +1,12 @@
 import { BaseProtocol } from './base-protocol';
-import { GothamRequest, GothamResponse } from '../models/messages';
+import { JunoRequest, JunoResponse } from '../models/messages';
 
 export class JsonProtocol extends BaseProtocol {
-	public encode(req: GothamRequest): Buffer {
+	public encode(req: JunoRequest): Buffer {
 		return Buffer.from(JSON.stringify(req) + '\n');
 	}
 
-	public decode(data: Buffer): GothamResponse {
+	public decode(data: Buffer): JunoResponse {
 		return JSON.parse(data.toString());
 	}
 }

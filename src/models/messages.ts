@@ -50,19 +50,19 @@ export interface DeclareFunctionResponse extends BaseMessage {
 	function: string;
 }
 
-export type GothamResponse =
+export type JunoResponse =
 	RegisterModuleResponse |
 	ListenHookResponse |
 	TriggerHookResponse |
 	DeclareFunctionResponse |
 	FunctionCallResponse;
-export type GothamRequest =
+export type JunoRequest =
 	RegisterModuleRequest |
 	DeclareFunctionRequest |
 	FunctionCallRequest |
 	RegisterHookRequest |
 	TriggerHookRequest;
-export type GothamMessage =
+export type JunoMessage =
 	RegisterModuleResponse |
 	ListenHookResponse |
 	TriggerHookResponse |

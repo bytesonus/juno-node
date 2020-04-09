@@ -1,6 +1,6 @@
-# Gotham Node
+# Juno Node
 
-This is a library that provides you with helper methods for interfacing with the microservices framework, [gotham](https://github.com/bytesonus/gotham).
+This is a library that provides you with helper methods for interfacing with the microservices framework, [juno](https://github.com/bytesonus/juno).
 
 ## How to use:
 
@@ -13,10 +13,10 @@ For all other basic needs, you can get away without worrying about any of that.
 ### A piece of code is worth a thousand words
 
 ```js
-import GothamModule from "./src/gotham-node";
+import JunoModule from "./src/juno-node";
 
 async function main() {
-    let module = GothamModule.default("./path/to/gotham.sock");
+    let module = JunoModule.default("./path/to/juno.sock");
     await module.initialize("module-name", "1.0.0");
     console.log("Initialized!");
 

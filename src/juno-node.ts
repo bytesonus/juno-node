@@ -6,11 +6,11 @@ import {
 	FunctionCallRequest,
 	FunctionCallResponse,
 	TriggerHookRequest,
-	GothamMessage
+	JunoMessage
 } from './models/messages';
 import SocketConnection from './connection/unix-socket-connection';
 
-export default class GothamModule {
+export default class JunoModule {
 
 	private protocol: BaseProtocol;
 	private moduleId?: string;
@@ -27,8 +27,8 @@ export default class GothamModule {
 		// this.connection.setOnDataListener(this.onDataHandler);
 	}
 
-	public static default(socketPath: string): GothamModule {
-		return new GothamModule(new SocketConnection(socketPath), new JsonProtocol());
+	public static default(socketPath: string): JunoModule {
+		return new JunoModule(new SocketConnection(socketPath), new JsonProtocol());
 	}
 
 	public async initialize(
@@ -87,7 +87,7 @@ export default class GothamModule {
 		return this.connection.closeConnection();
 	}
 
-	private async sendRequest(request: GothamMessage) {
+	private async sendRequest(request: JunoMessage) {
 		if (request.type === RequestTypes.ModuleRegistration && this.registered) {
 			throw new Error('Module already registered');
 		}
@@ -179,7 +179,7 @@ export default class GothamModule {
 	private async executeHookTriggered(request: TriggerHookRequest) {
 		if (request.hook) {
 			// Hook triggered by another module.
-			if (request.hook === `gotham.activated`) {
+			if (request.hook === `juno.activated`) {
 				this.registered = true;
 				if (this.messagBuffer) {
 					this.connection.send(this.messagBuffer);

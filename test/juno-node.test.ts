@@ -50,7 +50,7 @@ makeConnectionTests('Initalize Tests', function () {
 		});
 		this.test.conn.sendResponse({
 			requestId: '123',
-			hook: 'gotham.activated',
+			hook: 'juno.activated',
 			type: 8
 		});
 		expect(p).to.eventually.equal(true);
@@ -118,7 +118,7 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 
 
 makeConnectionTests(
-	'Test if responses from gotham parsed correctly',
+	'Test if responses from juno parsed correctly',
 	async function () {
 		it('declareFunction', async function () {
 			const p = this.test.module.declareFunction('test_fn', () => { });

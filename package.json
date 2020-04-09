@@ -1,11 +1,11 @@
 {
-	"name": "gotham-node",
+	"name": "juno",
 	"version": "0.0.0",
 	"description": "",
 	"keywords": [],
-	"main": "dist/gotham-node.umd.js",
-	"module": "dist/gotham-node.es5.js",
-	"typings": "dist/types/gotham-node.d.ts",
+	"main": "dist/juno-node.umd.js",
+	"module": "dist/juno-node.es5.js",
+	"typings": "dist/types/juno-node.d.ts",
 	"files": [
 		"dist"
 	],
@@ -84,7 +84,7 @@
 		"rollup-plugin-json": "^3.1.0",
 		"rollup-plugin-node-resolve": "^3.4.0",
 		"rollup-plugin-sourcemaps": "^0.4.2",
-		"rollup-plugin-typescript2": "^0.18.0",
+		"rollup-plugin-typescript2": "^0.27.0",
 		"semantic-release": "^15.9.16",
 		"shelljs": "^0.8.3",
 		"sinon": "^8.0.2",
@@ -95,7 +95,7 @@
 		"tslint": "^5.11.0",
 		"tslint-config-prettier": "^1.15.0",
 		"tslint-config-standard": "^8.0.1",
-		"typedoc": "^0.12.0",
+		"typedoc": "^0.17.4",
 		"typescript": "^3.0.3"
 	},
 	"dependencies": {}

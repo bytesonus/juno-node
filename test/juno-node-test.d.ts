@@ -1,16 +1,16 @@
 import BaseConnection from "../src/connection/base-connection";
-import GothamModule from "../src/gotham-node";
+import JunoModule from "../src/juno-node";
 import { SinonSpy } from "sinon";
-import { DummyGothamConnection } from "./helpers";
+import { DummyJunoConnection } from "./helpers";
 
-interface GothamTest {
+interface JunoTest {
 	connection: BaseConnection;
 }
 
 declare module 'mocha' {
 	interface Runnable {
-		conn: DummyGothamConnection;
-		module: GothamModule;
+		conn: DummyJunoConnection;
+		module: JunoModule;
 		sendFunc: SinonSpy;
 		getLatestSent: Function
 	}
