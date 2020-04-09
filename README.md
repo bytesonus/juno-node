@@ -22,10 +22,10 @@ async function main() {
 
     await module.declareFunction("printHello", (args) => {
         console.log("Hello");
-        Value::Null
+        return {};
     });
 
-    await module.call_function("module2.printHelloWorld");
+    await module.callFunction("module2.printHelloWorld");
 }
 
 main()
