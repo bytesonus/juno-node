@@ -1,5 +1,5 @@
 {
-	"name": "juno",
+	"name": "juno-node",
 	"version": "0.0.0",
 	"description": "",
 	"keywords": [],
@@ -9,7 +9,7 @@
 	"files": [
 		"dist"
 	],
-	"author": "thebongy <rishit.bansal0@gmail.com>",
+	"author": "thebongy <rishit.bansal@vicara.co>",
 	"repository": {
 		"type": "git",
 		"url": ""
