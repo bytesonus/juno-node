@@ -13,7 +13,7 @@ For all other basic needs, you can get away without worrying about any of that.
 ### A piece of code is worth a thousand words
 
 ```js
-import JunoModule from "./src/juno-node";
+import JunoModule from "juno-node";
 
 async function main() {
     let module = JunoModule.default("./path/to/juno.sock");
