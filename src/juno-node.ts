@@ -1,3 +1,4 @@
+import * as net from 'net';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -8,7 +9,8 @@ import {
 	TriggerHookRequest,
 	JunoMessage
 } from './models/messages';
-import SocketConnection from './connection/unix-socket-connection';
+import UnixSocketConnection from './connection/unix-socket-connection';
+import InetSocketConnection from './connection/inet-socket-connection';
 
 export default class JunoModule {
 
@@ -27,8 +29,25 @@ export default class JunoModule {
 		// this.connection.setOnDataListener(this.onDataHandler);
 	}
 
-	public static default(socketPath: string): JunoModule {
-		return new JunoModule(new SocketConnection(socketPath), new JsonProtocol());
+	public static async default(socketPath: string) {
+		if (net.isIP(socketPath.split(':')[0])) {
+			const [ host, port ] = socketPath.split(':');
+			return this.fromInetSocket(host, Number(port));
+		} else {
+			return this.fromUnixSocket(socketPath);
+		}
+	}
+
+	public static fromUnixSocket(path: string) {
+		// Return Error if invoked from windows
+		if (process.platform == 'win32') {
+			throw new Error('Unix sockets are not supported on windows');
+		}
+		return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
+	}
+
+	public static fromInetSocket(host: string, port: number) {
+		return new JunoModule(new InetSocketConnection(host, port), new JsonProtocol());
 	}
 
 	public async initialize(

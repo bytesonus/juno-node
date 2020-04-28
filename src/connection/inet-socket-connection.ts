@@ -1,18 +1,20 @@
 import * as net from 'net';
 import BaseConnection from './base-connection';
 
-export default class UnixSocketConnection extends BaseConnection {
+export default class InetSocketConnection extends BaseConnection {
 	client?: net.Socket;
-	sockPath: string;
+	host: string;
+	port: number;
 
-	constructor(sockPath: string) {
+	constructor(host: string, port: number) {
 		super();
-		this.sockPath = sockPath;
+		this.host = host;
+		this.port = port;
 	}
 
 	setupConnection(): Promise<void> {
 		return new Promise(resolve => {
-			this.client = net.createConnection(this.sockPath);
+			this.client = net.createConnection(this.port, this.host);
 			this.client.on('data', (data) => {
 				const dataLines = data.toString().split(/\r?\n/);
 				dataLines.map((data) => {
