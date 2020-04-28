@@ -1,5 +1,5 @@
 import { isIP } from 'net';
-import { promises as fs } from 'fs';
+import { promises as fsPromises } from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -36,7 +36,7 @@ export default class JunoModule {
 		if (isIP(host) && !isNaN(Number(port))) {
 			return this.fromInetSocket(host, Number(port));
 		}
-		if ( (await fs.lstat(socketPath)).isSocket() ) {
+		if ( (await fsPromises.lstat(socketPath)).isSocket() ) {
 			return this.fromUnixSocket(socketPath);
 		}
 
@@ -49,7 +49,7 @@ export default class JunoModule {
 		if (process.platform == 'win32') {
 			throw new Error('Unix sockets are not supported on windows');
 		}
-		if ( (await fs.lstat(path)).isSocket() ) {
+		if ( (await fsPromises.lstat(path)).isSocket() ) {
 			return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
 		}
 
