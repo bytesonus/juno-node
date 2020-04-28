@@ -3,7 +3,7 @@
 	"version": "0.0.0",
 	"description": "",
 	"keywords": [],
-	"main": "dist/juno-node.umd.js",
+	"main": "dist/juno-node.cjs.js",
 	"module": "dist/juno-node.es5.js",
 	"typings": "dist/types/juno-node.d.ts",
 	"files": [
@@ -21,9 +21,9 @@
 	"scripts": {
 		"lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
 		"prebuild": "rimraf dist",
-		"build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+		"build": "rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
 		"start": "rollup -c rollup.config.ts -w",
-		"test": "ts-mocha -p ./tsconfig.json test/**/*.test.ts",
+		"test": "ts-mocha -p ./tsconfig/tsconfig.test.json test/**/*.test.ts",
 		"test:coverage": "nyc --reporter=html --reporter=text --reporter=text-summary npm test",
 		"test:prod": "npm run lint && npm run test",
 		"deploy-docs": "ts-node tools/gh-pages-publish",
@@ -61,7 +61,6 @@
 		"@types/chai-as-promised": "^7.1.2",
 		"@types/expect": "^24.3.0",
 		"@types/mocha": "^7.0.2",
-		"@types/node": "^13.13.4",
 		"@types/sinon": "^9.0.0",
 		"@types/sinon-chai": "^3.2.4",
 		"chai": "^4.2.0",
