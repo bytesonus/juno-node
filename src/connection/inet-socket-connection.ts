@@ -1,8 +1,8 @@
-import * as net from 'net';
+import { Socket, createConnection } from 'net';
 import BaseConnection from './base-connection';
 
 export default class InetSocketConnection extends BaseConnection {
-	client?: net.Socket;
+	client?: Socket;
 	host: string;
 	port: number;
 
@@ -14,7 +14,7 @@ export default class InetSocketConnection extends BaseConnection {
 
 	setupConnection(): Promise<void> {
 		return new Promise(resolve => {
-			this.client = net.createConnection(this.port, this.host);
+			this.client = createConnection(this.port, this.host);
 			this.client.on('data', (data) => {
 				const dataLines = data.toString().split(/\r?\n/);
 				dataLines.map((data) => {

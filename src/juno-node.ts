@@ -1,5 +1,5 @@
-import * as net from 'net';
-import * as fs from 'fs';
+import { isIP } from 'net';
+import { promises as fs } from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -33,27 +33,35 @@ export default class JunoModule {
 	public static async default(socketPath: string) {
 		const [ host, port ] = socketPath.split(':');
 
-		if (net.isIP(host) && typeof Number(port) === 'number') {
+		if (isIP(host) && !isNaN(Number(port))) {
 			return this.fromInetSocket(host, Number(port));
 		}
-		if ( (await fs.promises.lstat(socketPath)).isSocket() ) {
+		if ( (await fs.lstat(socketPath)).isSocket() ) {
 			return this.fromUnixSocket(socketPath);
 		}
 
-		throw new Error('Invalid socket object');
+		throw new Error('Invalid socket object. Only unix domain sockets and Inet sockets are allowed');
 
 	}
 
-	public static fromUnixSocket(path: string) {
+	public static async fromUnixSocket(path: string) {
 		// Return Error if invoked from windows
 		if (process.platform == 'win32') {
 			throw new Error('Unix sockets are not supported on windows');
 		}
-		return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
+		if ( (await fs.lstat(path)).isSocket() ) {
+			return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
+		}
+
+		throw new Error('Invalid unix socket path');
 	}
 
-	public static fromInetSocket(host: string, port: number) {
-		return new JunoModule(new InetSocketConnection(host, port), new JsonProtocol());
+	public static async fromInetSocket(host: string, port: number) {
+		if (isIP(host) && !isNaN(Number(port))) {
+			return new JunoModule(new InetSocketConnection(host, port), new JsonProtocol());
+		}
+
+		throw new Error('Invalid Inet socket address. Use the format `{host}:{port}`')
 	}
 
 	public async initialize(
