@@ -3,8 +3,10 @@ on:
     branches:
       - master
       - staging
-      - develop
+	  - develop
+
 name: Continuous integration (PR)
+
 jobs:
   version-check:
     if: github.base_ref == 'staging' || github.base_ref == 'master'
@@ -21,7 +23,7 @@ jobs:
           file: package.json
           tagFormat: v${version}-beta
         id: version_check_staging
-      
+
       - name: Check Release Version (master)
         if: github.base_ref == 'master'
         uses: thebongy/version-check@v1
@@ -45,7 +47,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: npm ci
-      
+
       - name: Publish to npm
         uses: actions-rs/cargo@v1
         with:
