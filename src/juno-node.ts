@@ -1,4 +1,5 @@
 import * as net from 'net';
+import * as fs from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -30,12 +31,17 @@ export default class JunoModule {
 	}
 
 	public static async default(socketPath: string) {
-		if (net.isIP(socketPath.split(':')[0])) {
-			const [ host, port ] = socketPath.split(':');
+		const [ host, port ] = socketPath.split(':');
+
+		if (net.isIP(host) && typeof Number(port) === 'number') {
 			return this.fromInetSocket(host, Number(port));
-		} else {
+		}
+		if ( (await fs.promises.lstat(socketPath)).isSocket() ) {
 			return this.fromUnixSocket(socketPath);
 		}
+
+		throw new Error('Invalid socket object');
+
 	}
 
 	public static fromUnixSocket(path: string) {
