@@ -3,7 +3,7 @@ on:
     branches:
       - master
       - staging
-	  - develop
+      - develop
 
 name: Continuous integration (PR)
 
@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - run: git fetch --all --tags
 
       - name: Check Release Version (staging)
@@ -32,23 +31,20 @@ jobs:
           tagFormat: v${version}
         id: version_check_master
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        node:
-          - stable
-          - lts
-      fail-fast: false
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install dependencies
-        uses: actions-rs/cargo@v1
+      - name: Setup nodejs
+        uses: actions/setup-node@v1
         with:
-          command: npm ci
+          node-version: '12.x'
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Publish to npm
-        uses: actions-rs/cargo@v1
+        uses: actions/setup-node@v1
         with:
           command: npm publish

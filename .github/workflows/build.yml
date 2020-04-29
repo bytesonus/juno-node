@@ -9,31 +9,23 @@ name: Continuous integration
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        node:
-          - stable
-          - lts
-      fail-fast: false
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: Upload Artifact (Linux/MacOS)
-        uses: actions/upload-artifact@v1
-        if: matrix.os != 'windows-latest'
+      - name: Setup nodejs
+        uses: actions/setup-node@v1
         with:
-          name: juno-${{matrix.os}}
-          path: target/release/juno
+          node-version: '12.x'
 
-      - name: Upload Artifact (Windows)
-        uses: actions/upload-artifact@v1
-        if: matrix.os == 'windows-latest'
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish to npm
+        uses: actions/setup-node@v1
         with:
-          name: juno-${{matrix.os}}
-          path: target/release/juno.exe
+          command: npm publish
 
   # Publish release on push to master
   release-master:
@@ -50,30 +42,6 @@ jobs:
           file: package.json
           tagFormat: v${version}
         id: version_check
-
-      - name: Download Windows Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-windows-latest
-          path: release/windows
-
-      - name: Download MacOS Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-macos-latest
-          path: release/macos
-
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-ubuntu-latest
-          path: release/linux
-
-      - name: Rename Artifacts
-        run: |
-          mv release/windows/juno.exe release/windows/juno-${{steps.version_check.outputs.releaseVersion}}-windows.exe
-          mv release/macos/juno release/macos/juno-${{steps.version_check.outputs.releaseVersion}}-macos
-          mv release/linux/juno release/linux/juno-${{steps.version_check.outputs.releaseVersion}}-linux
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
@@ -99,30 +67,6 @@ jobs:
           file: package.json
           tagFormat: v${version}-beta
         id: version_check
-
-      - name: Download Windows Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-windows-latest
-          path: release/windows
-
-      - name: Download MacOS Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-macos-latest
-          path: release/macos
-
-      - name: Download Linux Artifact
-        uses: actions/download-artifact@v1
-        with:
-          name: juno-ubuntu-latest
-          path: release/linux
-
-      - name: Rename Artifacts
-        run: |
-          mv release/windows/juno.exe release/windows/juno-${{steps.version_check.outputs.releaseVersion}}-windows.exe
-          mv release/macos/juno release/macos/juno-${{steps.version_check.outputs.releaseVersion}}-macos
-          mv release/linux/juno release/linux/juno-${{steps.version_check.outputs.releaseVersion}}-linux
 
       - name: Publish Release
         uses: softprops/action-gh-release@v1
