@@ -18,9 +18,15 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+
+      - name: Install dependencies
         run: npm ci
-        run: npm test:prod
-        run: npm build
+
+      - name: Linting and Test
+        run: npm run test:prod
+
+      - name: Run Build
+        run: npm run build
 
   # Publish release on push to master
   release-master:
@@ -29,6 +35,7 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
+
       - run: git fetch --all --tags
 
       - name: Check Release Version
@@ -39,14 +46,24 @@ jobs:
         id: version_check
 
       - name: Publish Release
-        uses: softprops/action-gh-release@v1
+        id: create_release
+        uses: actions/create-release@latest
         with:
-          files: release/**/*
-          tag_name: ${{steps.version_check.outputs.releaseVersion}}
+          tag_name: ${{ steps.version_check.outputs.releaseVersion }}
+          release_name: Juno-node @Linux Release ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.version_check.outputs.upload_url }}
+          asset_path: ./juno-node-linux-${{ steps.version_check.outputs.releaseVersion }}.zip
+          asset_name: juno-node-linux-${{ steps.version_check.outputs.releaseVersion }}.zip
+          asset_content_type: application/zip
 
   release-staging:
     if: github.ref == 'refs/heads/staging'
@@ -64,11 +81,21 @@ jobs:
         id: version_check
 
       - name: Publish Release
-        uses: softprops/action-gh-release@v1
+        id: create_release
+        uses: actions/create-release@latest
         with:
-          files: release/**/*
-          tag_name: ${{steps.version_check.outputs.releaseVersion}}
+          tag_name: ${{ steps.version_check.outputs.releaseVersion }}
+          release_name: Linux Release ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.version_check.outputs.upload_url }}
+          asset_path: ./juno-node-linux-${{ steps.version_check.outputs.releaseVersion }}-beta.zip
+          asset_name: juno-node-linux-${{ steps.version_check.outputs.releaseVersion }}-beta.zip
+          asset_content_type: application/zip
