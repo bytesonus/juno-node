@@ -44,7 +44,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Publish to npm
-        uses: actions/setup-node@v1
-        with:
-          command: npm publish
+      - name: Run npm test and lint
+        run: npm run test:prod
