@@ -41,7 +41,9 @@ jobs:
         run: npm run build
 
       - name: Create tarball
-        run: npm pack
+        run: |
+          npm pack
+          mv *.tgz juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
