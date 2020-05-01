@@ -1,6 +1,6 @@
 {
 	"name": "juno-node",
-	"version": "0.0.3",
+	"version": "0.1.0",
 	"description": "",
 	"keywords": [],
 	"main": "dist/juno-node.cjs.js",
@@ -12,7 +12,7 @@
 	"author": "thebongy <rishit.bansal@vicara.co>",
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "https://github.com/bytesonus/juno-node"
 	},
 	"license": "MIT",
 	"engines": {
