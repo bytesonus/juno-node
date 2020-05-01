@@ -24,6 +24,7 @@ jobs:
         uses: thebongy/version-check@v1
         with:
           file: package.json
+          failBuild: false
         id: version_check
 
       - name: Install dependencies
