@@ -43,7 +43,7 @@ jobs:
       - name: Create tarball
         run: |
           npm pack
-          mv *.tgz juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
+          mv -n *.tgz juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
