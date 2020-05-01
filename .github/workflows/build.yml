@@ -59,7 +59,12 @@ jobs:
         with:
           file: package.json
           tagFormat: v${version}
-
+      
+      - name: Setup nodejs
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      
       - name: Publish Release
         id: create_release
         uses: actions/create-release@latest
@@ -104,6 +109,11 @@ jobs:
         with:
           file: package.json
           tagFormat: v${version}-beta
+
+      - name: Setup nodejs
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
 
       - name: Download Artifact
         uses: actions/download-artifact@v2
