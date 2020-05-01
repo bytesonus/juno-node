@@ -72,7 +72,7 @@ jobs:
         uses: actions/create-release@latest
         with:
           tag_name: ${{ steps.version_check.outputs.releaseVersion }}
-          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          release_name: ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
         uses: actions/create-release@latest
         with:
           tag_name: ${{ steps.version_check.outputs.releaseVersion }}
-          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          release_name: ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
