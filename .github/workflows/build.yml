@@ -27,6 +27,10 @@ jobs:
           failBuild: false
         id: version_check
 
+      - name: Bump package.json version (staging)
+        if: github.ref == 'refs/heads/staging'
+        run: npm -no-git-tag-version version v${{ steps.version_check.outputs.rawVersion }}-beta
+
       - name: Install dependencies
         run: npm ci
 
@@ -42,7 +46,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          name: juno-node-${{ steps.version_check.outputs.rawVersion }}
           path: ./juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
 
   # Publish release on push to master
@@ -72,7 +76,7 @@ jobs:
         uses: actions/create-release@latest
         with:
           tag_name: ${{ steps.version_check.outputs.releaseVersion }}
-          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          release_name: ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +132,7 @@ jobs:
         uses: actions/create-release@latest
         with:
           tag_name: ${{ steps.version_check.outputs.releaseVersion }}
-          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          release_name: ${{ steps.version_check.outputs.releaseVersion }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
