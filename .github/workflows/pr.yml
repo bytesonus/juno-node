@@ -36,6 +36,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Check Release Version
+        uses: thebongy/version-check@v1
+        with:
+          file: package.json
+        id: version_check
+
       - name: Setup nodejs
         uses: actions/setup-node@v1
         with:
@@ -46,3 +52,15 @@ jobs:
 
       - name: Linting and tests
         run: npm run test:prod
+
+      - name: Build
+        run: npm build
+
+      - name: Create tar
+        run: npm pack
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}-alpha
+          path: ./juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
