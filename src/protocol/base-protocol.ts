@@ -4,7 +4,7 @@ import {
 	DeclareFunctionRequest,
 	FunctionCallRequest,
 	RegisterModuleRequest,
-	GothamMessage
+	JunoMessage
 } from '../models/messages';
 import { RequestTypes } from '../utils/constants';
 
@@ -70,6 +70,6 @@ export abstract class BaseProtocol {
 		};
 	}
 
-	public abstract encode(req: GothamMessage): Buffer;
-	public abstract decode(data: Buffer): GothamMessage;
+	public abstract encode(req: JunoMessage): Buffer;
+	public abstract decode(data: Buffer): JunoMessage;
 }

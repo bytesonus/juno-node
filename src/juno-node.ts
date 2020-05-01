@@ -1,3 +1,5 @@
+import { isIP } from 'net';
+import { promises as fsPromises } from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -6,11 +8,12 @@ import {
 	FunctionCallRequest,
 	FunctionCallResponse,
 	TriggerHookRequest,
-	GothamMessage
+	JunoMessage
 } from './models/messages';
-import SocketConnection from './connection/unix-socket-connection';
+import UnixSocketConnection from './connection/unix-socket-connection';
+import InetSocketConnection from './connection/inet-socket-connection';
 
-export default class GothamModule {
+export default class JunoModule {
 
 	private protocol: BaseProtocol;
 	private moduleId?: string;
@@ -27,8 +30,38 @@ export default class GothamModule {
 		// this.connection.setOnDataListener(this.onDataHandler);
 	}
 
-	public static default(socketPath: string): GothamModule {
-		return new GothamModule(new SocketConnection(socketPath), new JsonProtocol());
+	public static async default(socketPath: string) {
+		const [ host, port ] = socketPath.split(':');
+
+		if (isIP(host) && !isNaN(Number(port))) {
+			return this.fromInetSocket(host, Number(port));
+		}
+		if ( (await fsPromises.lstat(socketPath)).isSocket() ) {
+			return this.fromUnixSocket(socketPath);
+		}
+
+		throw new Error('Invalid socket object. Only unix domain sockets and Inet sockets are allowed');
+
+	}
+
+	public static async fromUnixSocket(path: string) {
+		// Return Error if invoked from windows
+		if (process.platform == 'win32') {
+			throw new Error('Unix sockets are not supported on windows');
+		}
+		if ( (await fsPromises.lstat(path)).isSocket() ) {
+			return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
+		}
+
+		throw new Error('Invalid unix socket path');
+	}
+
+	public static async fromInetSocket(host: string, port: number) {
+		if (isIP(host) && !isNaN(Number(port))) {
+			return new JunoModule(new InetSocketConnection(host, port), new JsonProtocol());
+		}
+
+		throw new Error('Invalid Inet socket address. Use the format `{host}:{port}`')
 	}
 
 	public async initialize(
@@ -87,7 +120,7 @@ export default class GothamModule {
 		return this.connection.closeConnection();
 	}
 
-	private async sendRequest(request: GothamMessage) {
+	private async sendRequest(request: JunoMessage) {
 		if (request.type === RequestTypes.ModuleRegistration && this.registered) {
 			throw new Error('Module already registered');
 		}
@@ -179,7 +212,7 @@ export default class GothamModule {
 	private async executeHookTriggered(request: TriggerHookRequest) {
 		if (request.hook) {
 			// Hook triggered by another module.
-			if (request.hook === `gotham.activated`) {
+			if (request.hook === `juno.activated`) {
 				this.registered = true;
 				if (this.messagBuffer) {
 					this.connection.send(this.messagBuffer);
