@@ -40,8 +40,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}
-          path: ./juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
+          name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
+          path: ./juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
 
   # Publish release on push to master
   release-master:
@@ -57,14 +57,14 @@ jobs:
         uses: thebongy/version-check@v1
         with:
           file: package.json
-          tagFormat: ${version}
+          tagFormat: v${version}
 
       - name: Publish Release
         id: create_release
         uses: actions/create-release@latest
         with:
-          tag_name: v${{ steps.version_check.outputs.releaseVersion }}
-          release_name: Juno-node@v${{ steps.version_check.outputs.releaseVersion }}
+          tag_name: ${{ steps.version_check.outputs.releaseVersion }}
+          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
-          name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}
+          name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
@@ -80,12 +80,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
-          asset_name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}.tgz
+          asset_path: juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
+          asset_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
           asset_content_type: application/tgz
 
       - name: Publish to npm
-        run: npm publish juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
+        run: npm publish juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
@@ -102,19 +102,19 @@ jobs:
         uses: thebongy/version-check@v1
         with:
           file: package.json
-          tagFormat: ${version}
+          tagFormat: v${version}-beta
 
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
-          name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}
+          name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
 
       - name: Publish Release
         id: create_release
         uses: actions/create-release@latest
         with:
-          tag_name: v${{ steps.version_check.outputs.releaseVersion }}-beta
-          release_name: Juno-node@v${{ steps.version_check.outputs.releaseVersion }}-beta
+          tag_name: ${{ steps.version_check.outputs.releaseVersion }}
+          release_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,11 +125,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
-          asset_name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}-beta.tgz
+          asset_path: juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz
+          asset_name: juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
           asset_content_type: application/gzip
 
       - name: Publish to npm
-        run: npm publish juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz --tag beta
+        run: npm publish juno-node-${{ steps.version_check.outputs.rawVersion }}.tgz --tag beta
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
