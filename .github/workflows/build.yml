@@ -98,11 +98,11 @@ jobs:
       - run: git fetch --all --tags
 
       - name: Check Release Version
+        id: version_check
         uses: thebongy/version-check@v1
         with:
           file: package.json
           tagFormat: ${version}
-        id: version_check
 
       - name: Download Artifact
         uses: actions/download-artifact@v2
@@ -128,3 +128,8 @@ jobs:
           asset_path: juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz
           asset_name: juno-node@v${{ steps.version_check.outputs.releaseVersion }}-beta.tgz
           asset_content_type: application/gzip
+
+      - name: Publish to npm
+        run: npm publish juno-node-${{ steps.version_check.outputs.releaseVersion }}.tgz --tag beta
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
