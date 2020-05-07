@@ -158,7 +158,7 @@ export default class JunoModule {
 				break;
 			}
 			case ResponseTypes.FunctionResponse: {
-				value = await (response as FunctionCallResponse).data;
+				value = (response as FunctionCallResponse).data;
 				break;
 			}
 			case ResponseTypes.FunctionDeclared: {
