@@ -106,12 +106,29 @@ makeConnectionTests('Test if requests constructed correctly', function () {
 		});
 	});
 
-	it('triggerHook', function () {
+	it('triggerHook with no args', function () {
 		this.test.module.triggerHook('test_hook');
 		const message = this.test.getLatestSent();
 		expect(message).excluding('requestId').to.deep.equal({
 			type: 7,
 			hook: 'test_hook',
+			data: {},
+		});
+	});
+
+	it('triggerHook with args', function () {
+		this.test.module.triggerHook('test_hook', {
+			a:1,
+			b:2,
+		});
+		const message = this.test.getLatestSent();
+		expect(message).excluding('requestId').to.deep.equal({
+			type: 7,
+			hook: 'test_hook',
+			data: {
+				a: 1,
+				b: 2,
+			}
 		});
 	});
 });

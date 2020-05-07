@@ -110,9 +110,9 @@ export default class JunoModule {
 		);
 	}
 
-	public async triggerHook(hook: string) {
+	public async triggerHook(hook: string, data: any = {}) {
 		return this.sendRequest(
-			this.protocol.triggerHook(hook)
+			this.protocol.triggerHook(hook, data)
 		);
 	}
 
@@ -219,7 +219,7 @@ export default class JunoModule {
 				}
 			} else if (this.hookListeners[request.hook]) {
 				for (const listener of this.hookListeners[request.hook]) {
-					listener();
+					listener(request.data || {});
 				}
 			}
 			return true;
