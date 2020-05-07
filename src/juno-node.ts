@@ -1,3 +1,5 @@
+import { isIP } from 'net';
+import { promises as fsPromises } from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
@@ -8,7 +10,8 @@ import {
 	TriggerHookRequest,
 	JunoMessage
 } from './models/messages';
-import SocketConnection from './connection/unix-socket-connection';
+import UnixSocketConnection from './connection/unix-socket-connection';
+import InetSocketConnection from './connection/inet-socket-connection';
 
 export default class JunoModule {
 
@@ -27,8 +30,38 @@ export default class JunoModule {
 		// this.connection.setOnDataListener(this.onDataHandler);
 	}
 
-	public static default(socketPath: string): JunoModule {
-		return new JunoModule(new SocketConnection(socketPath), new JsonProtocol());
+	public static async default(socketPath: string) {
+		const [ host, port ] = socketPath.split(':');
+
+		if (isIP(host) && !isNaN(Number(port))) {
+			return this.fromInetSocket(host, Number(port));
+		}
+		if ( (await fsPromises.lstat(socketPath)).isSocket() ) {
+			return this.fromUnixSocket(socketPath);
+		}
+
+		throw new Error('Invalid socket object. Only unix domain sockets and Inet sockets are allowed');
+
+	}
+
+	public static async fromUnixSocket(path: string) {
+		// Return Error if invoked from windows
+		if (process.platform == 'win32') {
+			throw new Error('Unix sockets are not supported on windows');
+		}
+		if ( (await fsPromises.lstat(path)).isSocket() ) {
+			return new JunoModule(new UnixSocketConnection(path), new JsonProtocol());
+		}
+
+		throw new Error('Invalid unix socket path');
+	}
+
+	public static async fromInetSocket(host: string, port: number) {
+		if (isIP(host) && !isNaN(Number(port))) {
+			return new JunoModule(new InetSocketConnection(host, port), new JsonProtocol());
+		}
+
+		throw new Error('Invalid Inet socket address. Use the format `{host}:{port}`')
 	}
 
 	public async initialize(
@@ -77,9 +110,9 @@ export default class JunoModule {
 		);
 	}
 
-	public async triggerHook(hook: string) {
+	public async triggerHook(hook: string, data: any = {}) {
 		return this.sendRequest(
-			this.protocol.triggerHook(hook)
+			this.protocol.triggerHook(hook, data)
 		);
 	}
 
@@ -125,7 +158,7 @@ export default class JunoModule {
 				break;
 			}
 			case ResponseTypes.FunctionResponse: {
-				value = await (response as FunctionCallResponse).data;
+				value = (response as FunctionCallResponse).data;
 				break;
 			}
 			case ResponseTypes.FunctionDeclared: {
@@ -186,7 +219,7 @@ export default class JunoModule {
 				}
 			} else if (this.hookListeners[request.hook]) {
 				for (const listener of this.hookListeners[request.hook]) {
-					listener();
+					listener(request.data || {});
 				}
 			}
 			return true;

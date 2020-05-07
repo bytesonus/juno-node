@@ -28,6 +28,9 @@ export interface RegisterHookRequest extends BaseMessage {
 
 export interface TriggerHookRequest extends BaseMessage {
 	hook: string;
+	data: {
+		[type: string]: any
+	};
 }
 
 export interface RegisterModuleResponse extends BaseMessage {
@@ -43,7 +46,6 @@ export interface ListenHookResponse extends BaseMessage {
 
 export interface TriggerHookResponse extends BaseMessage {
 	hook: string;
-	data?: any;
 }
 
 export interface DeclareFunctionResponse extends BaseMessage {
