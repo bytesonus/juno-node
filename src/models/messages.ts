@@ -28,6 +28,9 @@ export interface RegisterHookRequest extends BaseMessage {
 
 export interface TriggerHookRequest extends BaseMessage {
 	hook: string;
+	data: {
+		[type: string]: any
+	};
 }
 
 export interface RegisterModuleResponse extends BaseMessage {
@@ -43,11 +46,14 @@ export interface ListenHookResponse extends BaseMessage {
 
 export interface TriggerHookResponse extends BaseMessage {
 	hook: string;
-	data?: any;
 }
 
 export interface DeclareFunctionResponse extends BaseMessage {
 	function: string;
+}
+
+export interface ErrorResponse extends BaseMessage {
+	error: number;
 }
 
 export type JunoResponse =
@@ -55,7 +61,8 @@ export type JunoResponse =
 	ListenHookResponse |
 	TriggerHookResponse |
 	DeclareFunctionResponse |
-	FunctionCallResponse;
+	FunctionCallResponse |
+	ErrorResponse;
 export type JunoRequest =
 	RegisterModuleRequest |
 	DeclareFunctionRequest |
@@ -72,4 +79,5 @@ export type JunoMessage =
 	DeclareFunctionRequest |
 	FunctionCallRequest |
 	RegisterHookRequest |
-	TriggerHookRequest;
+	TriggerHookRequest |
+	ErrorResponse;

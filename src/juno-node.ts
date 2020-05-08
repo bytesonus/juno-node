@@ -3,7 +3,7 @@ import { promises as fsPromises } from 'fs';
 import { BaseProtocol } from './protocol/base-protocol';
 import BaseConnection from './connection/base-connection';
 import { JsonProtocol } from './protocol/json-protocol';
-import { ResponseTypes, RequestTypes } from './utils/constants';
+import { ResponseTypes, RequestTypes, ErrorTypes } from './utils/constants';
 import {
 	FunctionCallRequest,
 	FunctionCallResponse,
@@ -12,6 +12,7 @@ import {
 } from './models/messages';
 import UnixSocketConnection from './connection/unix-socket-connection';
 import InetSocketConnection from './connection/inet-socket-connection';
+import {JunoError} from './models/errors';
 
 export default class JunoModule {
 
@@ -110,9 +111,9 @@ export default class JunoModule {
 		);
 	}
 
-	public async triggerHook(hook: string) {
+	public async triggerHook(hook: string, data: any = {}) {
 		return this.sendRequest(
-			this.protocol.triggerHook(hook)
+			this.protocol.triggerHook(hook, data)
 		);
 	}
 
@@ -139,11 +140,11 @@ export default class JunoModule {
 		}
 
 		return new Promise((resolve, reject) => {
-			this.requests[request.requestId] = (response: any) => {
-				if (response) {
-					resolve(response);
+			this.requests[request.requestId] = (err: boolean | Error, response: any) => {
+				if (err) {
+					reject(err);
 				} else {
-					reject(response);
+					resolve(response);
 				}
 			};
 		});
@@ -151,42 +152,61 @@ export default class JunoModule {
 
 	private async onDataHandler(data: Buffer) {
 		const response = this.protocol.decode(data);
-		let value;
+		let value: any = true;
+		let err: boolean | Error = false;
 		switch (response.type) {
 			case ResponseTypes.ModuleRegistered: {
-				value = true;
+				err = false;
 				break;
 			}
 			case ResponseTypes.FunctionResponse: {
-				value = await (response as FunctionCallResponse).data;
+				err = false;
+				value = (response as FunctionCallResponse).data;
 				break;
 			}
 			case ResponseTypes.FunctionDeclared: {
-				value = true;
+				err = false;
 				break;
 			}
 			case ResponseTypes.HookRegistered: {
-				value = true;
+				err = false;
 				break;
 			}
 			case ResponseTypes.HookTriggered: {
-				value = await this.executeHookTriggered(response as TriggerHookRequest);
+				try {
+					await this.executeHookTriggered(response as TriggerHookRequest);
+					err = false;
+				} catch (e) {
+					err = e;
+				}
 				break;
 			}
 
 			case RequestTypes.FunctionCall: {
-				this.executeFunctionCall(response as FunctionCallRequest);
+				try {
+					await this.executeFunctionCall(response as FunctionCallRequest);
+				} catch (e) {
+					err = e;
+				}
 				break;
 			}
 
 			default: {
-				value = false;
-				break;
+				err = TypeError(`Error message/Invalid message received from juno:
+						${JSON.stringify(response)}`);
 			}
 		}
 
+		if (err instanceof JunoError) {
+			this.sendRequest({
+				requestId: response.requestId,
+				type: ResponseTypes.Error,
+				error: err.errCode,
+			});
+		}
+		
 		if (this.requests[response.requestId]) {
-			this.requests[response.requestId](value);
+			this.requests[response.requestId](err, value);
 			delete this.requests[response.requestId];
 		}
 	}
@@ -202,10 +222,9 @@ export default class JunoModule {
 				type: ResponseTypes.FunctionResponse,
 				data: res || {}
 			});
-			return true;
 		} else {
 			// Function wasn't found in the module.
-			return false;
+			throw new JunoError(ErrorTypes.UnkownFunction);
 		}
 	}
 
@@ -219,13 +238,9 @@ export default class JunoModule {
 				}
 			} else if (this.hookListeners[request.hook]) {
 				for (const listener of this.hookListeners[request.hook]) {
-					listener();
+					listener(request.data || {});
 				}
 			}
-			return true;
-		} else {
-			// This moddule triggered the hook.
-			return true;
-		}
+		}	
 	}
 }

@@ -42,11 +42,12 @@ export abstract class BaseProtocol {
 		};
 	}
 
-	public triggerHook(hook: string): TriggerHookRequest {
+	public triggerHook(hook: string, data: any): TriggerHookRequest {
 		return {
 			requestId: this.generateRequestId(),
 			type: RequestTypes.TriggerHook,
-			hook
+			hook,
+			data
 		};
 	}
 
