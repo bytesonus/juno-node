@@ -192,7 +192,8 @@ export default class JunoModule {
 			}
 
 			default: {
-				err = TypeError("Error message/Invalid message received from juno");
+				err = TypeError(`Error message/Invalid message received from juno:
+						${JSON.stringify(response)}`);
 			}
 		}
 
