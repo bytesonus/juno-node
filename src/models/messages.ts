@@ -52,12 +52,17 @@ export interface DeclareFunctionResponse extends BaseMessage {
 	function: string;
 }
 
+export interface ErrorResponse extends BaseMessage {
+	error: number;
+}
+
 export type JunoResponse =
 	RegisterModuleResponse |
 	ListenHookResponse |
 	TriggerHookResponse |
 	DeclareFunctionResponse |
-	FunctionCallResponse;
+	FunctionCallResponse |
+	ErrorResponse;
 export type JunoRequest =
 	RegisterModuleRequest |
 	DeclareFunctionRequest |
@@ -74,4 +79,5 @@ export type JunoMessage =
 	DeclareFunctionRequest |
 	FunctionCallRequest |
 	RegisterHookRequest |
-	TriggerHookRequest;
+	TriggerHookRequest |
+	ErrorResponse;
