@@ -14,6 +14,7 @@ import UnixSocketConnection from './connection/unix-socket-connection';
 import InetSocketConnection from './connection/inet-socket-connection';
 import {JunoError} from './models/errors';
 
+
 export default class JunoModule {
 
 	private protocol: BaseProtocol;
