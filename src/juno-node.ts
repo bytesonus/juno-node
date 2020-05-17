@@ -224,7 +224,7 @@ export default class JunoModule {
 			});
 		} else {
 			// Function wasn't found in the module.
-			throw new JunoError(ErrorTypes.UnkownFunction);
+			throw new JunoError(ErrorTypes.UnknownFunction);
 		}
 	}
 

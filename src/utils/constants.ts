@@ -30,10 +30,10 @@ export const ResponseTypes = {
 export const ErrorTypes = {
 	MalformedRequest: 0,
 	InvalidRequestId: 1,
-	UnkownRequest: 2,
+	UnknownRequest: 2,
 	UnregisteredModule: 3,
-	UnkownModule: 4,
-	UnkownFunction: 5,
+	UnknownModule: 4,
+	UnknownFunction: 5,
 	InvalidModuleId: 6,
 	DuplicateModule: 7,
 };
