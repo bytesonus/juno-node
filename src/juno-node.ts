@@ -139,7 +139,7 @@ export default class JunoModule {
 			}
 		}
 
-		return new Promise((resolve, reject) => {
+		return new Promise<any>((resolve, reject) => {
 			this.requests[request.requestId] = (err: boolean | Error, response: any) => {
 				if (err) {
 					reject(err);
